@@ -11,6 +11,7 @@ import { useCollection } from 'react-firebase-hooks/firestore'
 import Button from '@/components/button'
 import styles from './auth.module.css'
 import clsx from 'clsx'
+import Link from 'next/link'
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
 	const [user, userLoading, userError] = useAuthState(auth)
@@ -59,10 +60,9 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 					styles['auth-header']
 				)}
 			>
-				<h1 className='bold text-2xl'>Image Annotation</h1>
-				<p className='flex'>
-					You are currently logged in as: {user?.email}
-				</p>
+				<h1 className='bold text-2xl'>
+					<Link href={'/home'}>Imaginary</Link>
+				</h1>
 				<Button onClick={() => signOut(auth)} variant='secondary'>
 					Log Out
 				</Button>

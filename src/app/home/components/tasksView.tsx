@@ -36,7 +36,9 @@ const TasksView = () => {
 				<BiLoaderAlt size={60} />
 			) : userError ? (
 				<p className='text-red-500'>Error Retrieving User Tasks</p>
-			) : (
+			) : !tasks.length? <div className='min-h-screen flex items-center justify-center'>
+				<p>No tasks found</p>
+			</div> : (
 				<section className='flex flex-wrap gap-8'>
 					{tasks.map((task) => (
 						<article key={task.id}>

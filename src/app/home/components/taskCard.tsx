@@ -13,7 +13,7 @@ const TaskCard: FC<Props> = ({ imageUrl, status, title }) => {
 	return (
 		<div className='flex flex-col gap-3 items-center border-gray-800 border rounded-lg p-10 w-[300px] h-[300px]'>
 			<h3>{title}</h3>
-			<Image src={imageUrl} alt={title} className='w-[250px] h-[100px]' />
+			<Image src={imageUrl} alt={title} width={250} height={100} className='w-[250px] h-[100px] object-cover' />
 			<StatusTag status={status} />
 		</div>
 	)
