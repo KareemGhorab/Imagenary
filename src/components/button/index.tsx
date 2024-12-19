@@ -39,7 +39,7 @@ const Button: React.FC<Props> = ({
 				props.className
 			)}
 		>
-			{loading ? <BiLoaderAlt size={20} /> : children}
+			{loading ? <BiLoaderAlt className='animate-spin' size={20} /> : children}
 		</button>
 	)
 }

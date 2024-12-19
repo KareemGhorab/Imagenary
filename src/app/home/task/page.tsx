@@ -117,7 +117,7 @@ const NewTaskPage: React.FC = () => {
 				)}
 			</div>
 
-			<Button type='submit' className='w-full' loading={isLoading}>
+			<Button type='submit' className='w-full h-10' loading={isLoading}>
 				Create Task
 			</Button>
 		</form>
