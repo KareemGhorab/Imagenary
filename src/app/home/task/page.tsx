@@ -3,7 +3,6 @@
 import Button from '@/components/button'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { useMutation } from 'react-query'
-import { CldUploadWidget } from 'next-cloudinary'
 import { toast } from 'react-toastify'
 import { taskSVC } from '@/service/api'
 import { useRouter } from 'next/navigation'
@@ -118,7 +117,7 @@ const NewTaskPage: React.FC = () => {
 				)}
 			</div>
 
-			<Button type='submit' className='w-full '>
+			<Button type='submit' className='w-full' loading={isLoading}>
 				Create Task
 			</Button>
 		</form>

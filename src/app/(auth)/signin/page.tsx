@@ -27,7 +27,11 @@ const SignIn = () => {
 	const { mutate: createUser } = useMutation({
 		mutationFn: ({ email, password }: TFormInputs) =>
 			signInWithEmailAndPassword(email, password),
-		onSuccess: () => {
+		onSuccess: (data) => {
+			if (!data) {
+				toast('Error signing in', { type: 'error', theme: 'colored' })
+				return
+			}
 			toast('Signed in Successfully', {
 				position: 'top-right',
 				theme: 'colored',
@@ -122,10 +126,7 @@ const SignIn = () => {
 
 				<p className='text-sm text-gray-600 text-center mt-4'>
 					Don't have an account?{' '}
-					<Link
-						href='/signup'
-						className='underline'
-					>
+					<Link href='/signup' className='underline'>
 						Sign up here
 					</Link>
 				</p>

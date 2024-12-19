@@ -2,24 +2,28 @@ import clsx from 'clsx'
 
 import styles from './index.module.css'
 import { ReactNode } from 'react'
+import { BiLoaderAlt } from 'react-icons/bi'
 
 type Props = {
 	variant?: 'primary' | 'secondary'
 	type?: 'submit' | 'button'
 	rounded?: boolean
 	children?: ReactNode
+	loading?: boolean
 } & React.HtmlHTMLAttributes<HTMLButtonElement>
 
 const Button: React.FC<Props> = ({
 	variant = 'primary',
 	type,
 	rounded = false,
+	loading = false,
 	children,
 	...props
 }) => {
 	return (
 		<button
 			type={type}
+			disabled={loading}
 			{...props}
 			className={clsx(
 				'text-xl flex justify-center items-center text-center',
@@ -35,7 +39,7 @@ const Button: React.FC<Props> = ({
 				props.className
 			)}
 		>
-			{children}
+			{loading ? <BiLoaderAlt size={20} /> : children}
 		</button>
 	)
 }
