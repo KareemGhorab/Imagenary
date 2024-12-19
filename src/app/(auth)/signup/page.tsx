@@ -29,7 +29,11 @@ const Signup = () => {
 	const { mutate: createUser } = useMutation({
 		mutationFn: ({ email, password }: TFormInputs) =>
 			createUserWithEmailAndPassword(email, password),
-		onSuccess: () => {
+		onSuccess: (data) => {
+			if (!data) {
+				toast('Error creating account', { type: 'error', theme: 'colored' })
+				return
+			}
 			toast('Account Created Successfully', {
 				position: 'top-right',
 				theme: 'colored',
