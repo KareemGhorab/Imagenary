@@ -11,6 +11,7 @@ import { toast } from 'react-toastify'
 import { FaArrowLeft } from 'react-icons/fa'
 import { Point, Rectangle } from '@/types'
 import { drawRectangles } from '@/helpers'
+import { useMutation } from 'react-query'
 
 type Props = { params: { taskId: string } }
 
@@ -180,44 +181,55 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setShowAnnotationInput(false)
 	}
 
-	const handleResetAnnotations = async () => {
-		try {
-			setRectangles([])
-			const canvas = canvasRef.current
-			if (!canvas || !backgroundImage) return
+	const { mutate: resetAnnotations, isLoading: loadingResetAnnotations } =
+		useMutation({
+			mutationFn: () => {
+				setRectangles([])
+				const canvas = canvasRef.current!
+				ctx.clearRect(0, 0, canvas.width, canvas.height)
+				ctx.drawImage(
+					backgroundImage!,
+					0,
+					0,
+					canvas.width,
+					canvas.height
+				)
+				setShowAnnotationInput(false)
+				return updateDoc(taskRef, { rectangles: rectangles })
+			},
+			onSuccess: () => {
+				toast('Annotations reset successfully', {
+					type: 'success',
+					theme: 'colored',
+				})
+			},
+			onError: () => {
+				toast('Failed to reset annotations.', {
+					type: 'error',
+					theme: 'colored',
+				})
+			},
+		})
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height)
-			ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
-			
-			await updateDoc(taskRef, { rectangles: [] })
-			toast('Annotations reset successfully', {
-				type: 'success',
-				theme: 'colored',
-			})
-		} catch (error) {
-			toast('Failed to reset annotations.', {
-				type: 'error',
-				theme: 'colored',
-			})
-		}
-	}
-
-	const handleSaveAnnotations = async () => {
-		try {
-			await updateDoc(taskRef, {
-				rectangles: rectangles,
-			})
-			toast('Annotations saved successfully', {
-				type: 'success',
-				theme: 'colored',
-			})
-		} catch (error) {
-			toast('Failed to save annotations.', {
-				type: 'error',
-				theme: 'colored',
-			})
-		}
-	}
+	const { mutate: saveAnnotation, isLoading: loadingSaveAnnotation } =
+		useMutation({
+			mutationFn: () => {
+				setShowAnnotationInput(false)
+				return updateDoc(taskRef, { rectangles: rectangles })
+			},
+			onSuccess: () => {
+				toast('Annotations saved successfully', {
+					type: 'success',
+					theme: 'colored',
+				})
+			},
+			onError: () => {
+				toast('Failed to save annotations.', {
+					type: 'error',
+					theme: 'colored',
+				})
+			},
+		})
 
 	const handleStatusChange = async (
 		event: React.ChangeEvent<HTMLSelectElement>
@@ -283,17 +295,13 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 						<option value='completed'>Completed</option>
 					</select>
 				</div>
-				<Button
-					onClick={handleResetAnnotations}
-					className=''
-					variant='primary'
-				>
+				<Button onClick={() => resetAnnotations()} variant='primary'>
 					Reset Annotations
 				</Button>
 				<Button
-					onClick={handleSaveAnnotations}
-					className=''
+					onClick={() => saveAnnotation()}
 					variant='secondary'
+					loading={loadingSaveAnnotation}
 				>
 					Save Annotations
 				</Button>
