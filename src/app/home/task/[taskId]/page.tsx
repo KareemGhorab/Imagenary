@@ -227,7 +227,6 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 				theme: 'colored',
 			})
 		} catch (error) {
-			console.error('Error saving annotations:', error)
 			toast('Failed to save annotations.', {
 				type: 'error',
 				theme: 'colored',
@@ -277,7 +276,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 				onTouchEnd={handleTouchUp}
 			></canvas>
 			{selectedRectangleIndex !== null && (
-				<div className='mt-4'>
+				<div className='mt-4 fixed bottom-8 left-8'>
 					<input
 						type='text'
 						value={annotationInput}

@@ -10,6 +10,7 @@ type Props = {
 	rounded?: boolean
 	children?: ReactNode
 	loading?: boolean
+	disabled?: boolean
 } & React.HtmlHTMLAttributes<HTMLButtonElement>
 
 const Button: React.FC<Props> = ({
@@ -18,12 +19,13 @@ const Button: React.FC<Props> = ({
 	rounded = false,
 	loading = false,
 	children,
+	disabled = false,
 	...props
 }) => {
 	return (
 		<button
 			type={type}
-			disabled={loading}
+			disabled={loading || disabled}
 			{...props}
 			className={clsx(
 				'text-xl flex justify-center items-center text-center',
@@ -35,6 +37,7 @@ const Button: React.FC<Props> = ({
 					'rounded-full p-2': rounded,
 					[styles.btn]: !rounded,
 					'px-3 py-1': !rounded,
+					'opacity-50 cursor-not-allowed': disabled,
 				},
 				props.className
 			)}
