@@ -56,14 +56,12 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 			const loadedRectangles = taskData.rectangles || []
 			setRectangles(loadedRectangles)
-			drawRectangles(ctx, loadedRectangles)
 		}
 
 		setStatus(taskData.status || 'pending')
 
 		
 	}, [taskData, backgroundImage])
-
 
 	useEffect(() => {
 		const unsubscribe = onSnapshot(taskRef, (doc) => {
@@ -74,15 +72,16 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 			const updatedRectangles = newTaskData.rectangles || []
 			setRectangles(updatedRectangles)
-
-			if (backgroundImage) {
-				resetCanvas(ctx, backgroundImage)
-				drawRectangles(ctx, updatedRectangles)
-			}
 		})
 
 		return () => unsubscribe()
 	}, [])
+
+	useEffect(() => {
+		if (!backgroundImage) return
+		resetCanvas(ctx, backgroundImage)
+		drawRectangles(ctx, rectangles)
+	}, [rectangles, backgroundImage])
 
 	const handleMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
 		if (!canvasRef.current) return
@@ -209,15 +208,6 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		useMutation({
 			mutationFn: () => {
 				setRectangles([])
-				const canvas = canvasRef.current!
-				ctx.clearRect(0, 0, canvas.width, canvas.height)
-				ctx.drawImage(
-					backgroundImage!,
-					0,
-					0,
-					canvas.width,
-					canvas.height
-				)
 				setShowAnnotationInput(false)
 				return updateDoc(taskRef, { rectangles: [] })
 			},

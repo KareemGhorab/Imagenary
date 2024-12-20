@@ -1,20 +1,11 @@
 'use client'
 
 import { auth, db } from '@/config/firebase'
-import { QueryKeys } from '@/enums'
 import { Task } from '@/types'
-import {
-	collection,
-	doc,
-	getDocs,
-	onSnapshot,
-	query,
-	where,
-} from 'firebase/firestore'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import Link from 'next/link'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { BiLoaderAlt } from 'react-icons/bi'
-import { useQuery } from 'react-query'
 import TaskCard from './taskCard'
 import { useEffect, useState } from 'react'
 
