@@ -3,9 +3,16 @@
 import Button from '@/components/button'
 import Loading from '@/components/loading'
 import { db } from '@/config/firebase'
-import { doc, updateDoc } from 'firebase/firestore' // Import updateDoc
+import { doc, updateDoc } from 'firebase/firestore'
 import Link from 'next/link'
-import { MouseEvent, useEffect, useRef, useState } from 'react'
+import {
+	MouseEvent,
+	TouchEvent,
+	TouchEventHandler,
+	useEffect,
+	useRef,
+	useState,
+} from 'react'
 import { useDocument } from 'react-firebase-hooks/firestore'
 import { toast } from 'react-toastify'
 import { FaArrowLeft } from 'react-icons/fa'
@@ -97,6 +104,17 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setIsDrawing(true)
 	}
 
+	const handleTouchDown = (e: TouchEvent<HTMLCanvasElement>) => {
+		if (!canvasRef.current) return
+
+		const rect = canvasRef.current.getBoundingClientRect()
+		const x = e.touches[0].clientX - rect.left
+		const y = e.touches[0].clientY - rect.top
+
+		setStartPoint({ x, y })
+		setIsDrawing(true)
+	}
+
 	const handleMouseMove = (e: MouseEvent<HTMLCanvasElement>) => {
 		if (!isDrawing || !startPoint || !backgroundImage || !canvasRef.current)
 			return
@@ -122,12 +140,56 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		ctx.strokeRect(startPoint.x, startPoint.y, width, height)
 	}
 
+	const handleTouchMove = (e: TouchEvent<HTMLCanvasElement>) => {
+		if (!isDrawing || !startPoint || !backgroundImage || !canvasRef.current)
+			return
+
+		const canvas = canvasRef.current
+		const ctx = canvas.getContext('2d')
+		if (!ctx) return
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+		rectangles.forEach((rect) => {
+			ctx.strokeStyle = 'red'
+			ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
+		})
+
+		const rect = canvas.getBoundingClientRect()
+		const x = e.touches[0].clientX - rect.left
+		const y = e.touches[0].clientY - rect.top
+		const width = x - startPoint.x
+		const height = y - startPoint.y
+
+		ctx.strokeStyle = 'blue'
+		ctx.strokeRect(startPoint.x, startPoint.y, width, height)
+	}
+
 	const handleMouseUp = (e: MouseEvent<HTMLCanvasElement>) => {
 		if (!startPoint || !canvasRef.current) return
 
 		const rect = canvasRef.current.getBoundingClientRect()
 		const x = e.clientX - rect.left
 		const y = e.clientY - rect.top
+
+		const newRectangle: Rectangle = {
+			x: startPoint.x,
+			y: startPoint.y,
+			width: x - startPoint.x,
+			height: y - startPoint.y,
+		}
+
+		setRectangles((prev) => [...prev, newRectangle])
+		setIsDrawing(false)
+		setSelectedRectangleIndex(rectangles.length)
+	}
+
+	const handleTouchUp = (e: TouchEvent<HTMLCanvasElement>) => {
+		if (!startPoint || !canvasRef.current) return
+
+		const rect = canvasRef.current.getBoundingClientRect()
+		const x = e.touches[0].clientX - rect.left
+		const y = e.touches[0].clientY - rect.top
 
 		const newRectangle: Rectangle = {
 			x: startPoint.x,
@@ -210,6 +272,9 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}
+				onTouchStart={handleTouchDown}
+				onTouchMove={handleTouchMove}
+				onTouchEnd={handleTouchUp}
 			></canvas>
 			{selectedRectangleIndex !== null && (
 				<div className='mt-4'>

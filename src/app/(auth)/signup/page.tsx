@@ -7,7 +7,6 @@ import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth'
 import { auth } from '@/config/firebase'
 import { useMutation } from 'react-query'
 import { toast } from 'react-toastify'
-import Input from '@/components/input'
 import Button from '@/components/button'
 
 type TFormInputs = {
@@ -31,7 +30,10 @@ const Signup = () => {
 			createUserWithEmailAndPassword(email, password),
 		onSuccess: (data) => {
 			if (!data) {
-				toast('Error creating account', { type: 'error', theme: 'colored' })
+				toast('Error creating account', {
+					type: 'error',
+					theme: 'colored',
+				})
 				return
 			}
 			toast('Account Created Successfully', {
