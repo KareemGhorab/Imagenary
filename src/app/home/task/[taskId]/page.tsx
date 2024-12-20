@@ -73,8 +73,8 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		canvas.width = 800
-		canvas.height = 600
+		canvas.width = 320
+		canvas.height = 225
 		img.src = taskData.imageUrl
 		img.onload = () => {
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
