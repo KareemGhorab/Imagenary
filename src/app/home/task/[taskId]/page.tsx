@@ -5,29 +5,14 @@ import Loading from '@/components/loading'
 import { db } from '@/config/firebase'
 import { doc, updateDoc } from 'firebase/firestore'
 import Link from 'next/link'
-import {
-	MouseEvent,
-	TouchEvent,
-	useEffect,
-	useRef,
-	useState,
-} from 'react'
+import { MouseEvent, TouchEvent, useEffect, useRef, useState } from 'react'
 import { useDocument } from 'react-firebase-hooks/firestore'
 import { toast } from 'react-toastify'
 import { FaArrowLeft } from 'react-icons/fa'
+import { Point, Rectangle } from '@/types'
+import { drawRectangles } from '@/helpers'
 
 type Props = { params: { taskId: string } }
-
-interface Point {
-	x: number
-	y: number
-}
-
-interface Rectangle extends Point {
-	width: number
-	height: number
-	annotation?: string
-}
 
 const TaskPage = ({ params: { taskId } }: Props) => {
 	const taskRef = doc(db, 'tasks', taskId)
@@ -36,32 +21,16 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 	const taskData = taskSnapshot?.data()
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null)
+	const ctx = canvasRef.current?.getContext('2d')!
 	const [isDrawing, setIsDrawing] = useState<boolean>(false)
 	const [rectangles, setRectangles] = useState<Rectangle[]>([])
 	const [startPoint, setStartPoint] = useState<Point | null>(null)
 	const [backgroundImage, setBackgroundImage] =
 		useState<HTMLImageElement | null>(null)
 	const [annotationInput, setAnnotationInput] = useState<string>('')
-	const [selectedRectangleIndex, setSelectedRectangleIndex] = useState<
-		number | null
-	>(null)
+	const [showAnnotationInput, setShowAnnotationInput] =
+		useState<boolean>(false)
 	const [status, setStatus] = useState<string>('')
-
-	const drawRectangles = (
-		ctx: CanvasRenderingContext2D,
-		rectangles: Rectangle[]
-	) => {
-		rectangles.forEach((rect) => {
-			ctx.strokeStyle = 'red'
-			ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
-
-			if (rect.annotation) {
-				ctx.fillStyle = 'black'
-				ctx.font = '16px Arial'
-				ctx.fillText(rect.annotation, rect.x + 5, rect.y - 5)
-			}
-		})
-	}
 
 	useEffect(() => {
 		if (!taskData?.imageUrl || backgroundImage) return
@@ -119,8 +88,6 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 			return
 
 		const canvas = canvasRef.current
-		const ctx = canvas.getContext('2d')
-		if (!ctx) return
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 		ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
@@ -174,7 +141,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 		setRectangles((prev) => [...prev, newRectangle])
 		setIsDrawing(false)
-		setSelectedRectangleIndex(rectangles.length)
+		setShowAnnotationInput(true)
 	}
 
 	const handleTouchUp = (e: TouchEvent<HTMLCanvasElement>) => {
@@ -193,21 +160,24 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 		setRectangles((prev) => [...prev, newRectangle])
 		setIsDrawing(false)
-		setSelectedRectangleIndex(rectangles.length)
+		setShowAnnotationInput(true)
 	}
 
 	const handleAddAnnotation = () => {
-		if (selectedRectangleIndex === null) return
-		const updatedRectangles = [...rectangles]
-		updatedRectangles[selectedRectangleIndex].annotation = annotationInput
-		setRectangles(updatedRectangles)
+		if (!showAnnotationInput) return
+
+		setRectangles((prev) => {
+			prev[prev.length - 1].annotation = annotationInput
+			const canvas = canvasRef.current
+			if (canvas) {
+				const ctx = canvas.getContext('2d')
+				if (ctx) drawRectangles(ctx, prev)
+			}
+			return prev
+		})
+
 		setAnnotationInput('')
-		setSelectedRectangleIndex(null)
-		const canvas = canvasRef.current
-		if (canvas) {
-			const ctx = canvas.getContext('2d')
-			if (ctx) drawRectangles(ctx, updatedRectangles)
-		}
+		setShowAnnotationInput(false)
 	}
 
 	const handleSaveAnnotations = async () => {
@@ -268,7 +238,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchUp}
 			></canvas>
-			{selectedRectangleIndex !== null && (
+			{showAnnotationInput ? (
 				<div className='mt-4 fixed bottom-8 left-8'>
 					<input
 						type='text'
@@ -281,7 +251,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 						Add Annotation
 					</Button>
 				</div>
-			)}
+			) : null}
 			<div className='flex gap-5 flex-col items-center'>
 				<div>
 					<label htmlFor='status'>Status: </label>
