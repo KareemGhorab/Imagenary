@@ -198,7 +198,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 					canvas.height
 				)
 				setShowAnnotationInput(false)
-				return updateDoc(taskRef, { rectangles: rectangles })
+				return updateDoc(taskRef, { rectangles: [] })
 			},
 			onSuccess: () => {
 				toast('Annotations reset successfully', {
