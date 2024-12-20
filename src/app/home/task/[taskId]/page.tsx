@@ -8,7 +8,6 @@ import Link from 'next/link'
 import {
 	MouseEvent,
 	TouchEvent,
-	TouchEventHandler,
 	useEffect,
 	useRef,
 	useState,
@@ -48,6 +47,22 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 	>(null)
 	const [status, setStatus] = useState<string>('')
 
+	const drawRectangles = (
+		ctx: CanvasRenderingContext2D,
+		rectangles: Rectangle[]
+	) => {
+		rectangles.forEach((rect) => {
+			ctx.strokeStyle = 'red'
+			ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
+
+			if (rect.annotation) {
+				ctx.fillStyle = 'black'
+				ctx.font = '16px Arial'
+				ctx.fillText(rect.annotation, rect.x + 5, rect.y - 5)
+			}
+		})
+	}
+
 	useEffect(() => {
 		if (!taskData?.imageUrl || backgroundImage) return
 		const img = document.createElement('img')
@@ -76,22 +91,6 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 			setStatus('pending')
 		}
 	}, [taskData, backgroundImage])
-
-	const drawRectangles = (
-		ctx: CanvasRenderingContext2D,
-		rectangles: Rectangle[]
-	) => {
-		rectangles.forEach((rect) => {
-			ctx.strokeStyle = 'red'
-			ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
-
-			if (rect.annotation) {
-				ctx.fillStyle = 'black'
-				ctx.font = '16px Arial'
-				ctx.fillText(rect.annotation, rect.x + 5, rect.y - 5)
-			}
-		})
-	}
 
 	const handleMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
 		if (!canvasRef.current) return
@@ -125,10 +124,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 		ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
-		rectangles.forEach((rect) => {
-			ctx.strokeStyle = 'red'
-			ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
-		})
+		drawRectangles(ctx, rectangles)
 
 		const rect = canvas.getBoundingClientRect()
 		const x = e.clientX - rect.left
@@ -150,10 +146,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 		ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
-		rectangles.forEach((rect) => {
-			ctx.strokeStyle = 'red'
-			ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
-		})
+		drawRectangles(ctx, rectangles)
 
 		const rect = canvas.getBoundingClientRect()
 		const x = e.touches[0].clientX - rect.left
