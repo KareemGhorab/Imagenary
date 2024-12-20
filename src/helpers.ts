@@ -15,3 +15,11 @@ export const drawRectangles = (
 		}
 	})
 }
+
+export const resetCanvas = (
+	ctx: CanvasRenderingContext2D,
+	image: HTMLImageElement
+) => {
+	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+	ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height)
+}

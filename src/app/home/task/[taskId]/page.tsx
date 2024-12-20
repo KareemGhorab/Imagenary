@@ -10,7 +10,7 @@ import { useDocument } from 'react-firebase-hooks/firestore'
 import { toast } from 'react-toastify'
 import { FaArrowLeft } from 'react-icons/fa'
 import { Point, Rectangle } from '@/types'
-import { drawRectangles } from '@/helpers'
+import { drawRectangles, resetCanvas } from '@/helpers'
 import { useMutation } from 'react-query'
 
 type Props = { params: { taskId: string } }
@@ -90,8 +90,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 
 		const canvas = canvasRef.current
 
-		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+		resetCanvas(ctx, backgroundImage)
 		drawRectangles(ctx, rectangles)
 
 		const rect = canvas.getBoundingClientRect()
@@ -112,8 +111,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+		resetCanvas(ctx, backgroundImage)
 		drawRectangles(ctx, rectangles)
 
 		const rect = canvas.getBoundingClientRect()
@@ -295,11 +293,17 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 						<option value='completed'>Completed</option>
 					</select>
 				</div>
-				<Button onClick={() => resetAnnotations()} variant='primary'>
+				<Button
+					onClick={() => resetAnnotations()}
+					className='w-44 h-10'
+					variant='primary'
+					loading={loadingResetAnnotations}
+				>
 					Reset Annotations
 				</Button>
 				<Button
 					onClick={() => saveAnnotation()}
+					className='w-44 h-10'
 					variant='secondary'
 					loading={loadingSaveAnnotation}
 				>
