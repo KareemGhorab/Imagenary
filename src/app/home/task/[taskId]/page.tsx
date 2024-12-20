@@ -12,6 +12,7 @@ import { FaArrowLeft } from 'react-icons/fa'
 import { Point, Rectangle } from '@/types'
 import { drawRectangles, resetCanvas } from '@/helpers'
 import { useMutation } from 'react-query'
+import { useRouter } from 'next/navigation'
 
 type Props = { params: { taskId: string } }
 
@@ -33,6 +34,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		useState<boolean>(false)
 	const [status, setStatus] = useState<string>('')
 	const [annotationsToUndo, setAnnotationsToUndo] = useState<number>(0)
+	const router = useRouter()
 
 	useEffect(() => {
 		if (!taskData?.imageUrl || backgroundImage) return
@@ -225,6 +227,8 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 					type: 'success',
 					theme: 'colored',
 				})
+				setAnnotationsToUndo(0)
+				router.push('/home')
 			},
 			onError: () => {
 				toast('Failed to save annotations.', {
