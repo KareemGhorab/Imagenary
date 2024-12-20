@@ -44,6 +44,7 @@ const TasksView = () => {
 						<article key={task.id}>
 							<Link href={`/home/task/${task.id}`}>
 								<TaskCard
+								rectangles={task.rectangles}
 									imageUrl={task.imageUrl}
 									status={task.status}
 									title={task.title}

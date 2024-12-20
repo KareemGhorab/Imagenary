@@ -6,22 +6,13 @@ export type Task = {
 	imageUrl: string
 	assignedTo: string
 	status: TaskStatus
-	annotations: {
-		rectangles: {
-			x: number
-			y: number
-			width: number
-			height: number
-			annotation: string
-		}[]
-	}[]
+	rectangles: Rectangle[]
 }
 
 export type User = {
 	email: string
 	tasks: string[]
 }
-
 
 export type Point = {
 	x: number
