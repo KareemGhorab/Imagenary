@@ -180,6 +180,28 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setShowAnnotationInput(false)
 	}
 
+	const handleResetAnnotations = async () => {
+		try {
+			setRectangles([])
+			const canvas = canvasRef.current
+			if (!canvas || !backgroundImage) return
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height)
+			ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+			
+			await updateDoc(taskRef, { rectangles: [] })
+			toast('Annotations reset successfully', {
+				type: 'success',
+				theme: 'colored',
+			})
+		} catch (error) {
+			toast('Failed to reset annotations.', {
+				type: 'error',
+				theme: 'colored',
+			})
+		}
+	}
+
 	const handleSaveAnnotations = async () => {
 		try {
 			await updateDoc(taskRef, {
@@ -239,7 +261,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 				onTouchEnd={handleTouchUp}
 			></canvas>
 			{showAnnotationInput ? (
-				<div className='mt-4 fixed bottom-8 left-8'>
+				<div className='mt-4 fixed bottom-8 left-8 border rounded p-2 border-slate-800 animate-bounce'>
 					<input
 						type='text'
 						value={annotationInput}
@@ -261,6 +283,13 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 						<option value='completed'>Completed</option>
 					</select>
 				</div>
+				<Button
+					onClick={handleResetAnnotations}
+					className=''
+					variant='primary'
+				>
+					Reset Annotations
+				</Button>
 				<Button
 					onClick={handleSaveAnnotations}
 					className=''
