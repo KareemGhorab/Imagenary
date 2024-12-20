@@ -73,7 +73,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setIsDrawing(true)
 	}
 
-	const handleTouchDown = (e: TouchEvent<HTMLCanvasElement>) => {
+	const handleTouchStart = (e: TouchEvent<HTMLCanvasElement>) => {
 		if (!canvasRef.current) return
 
 		const rect = canvasRef.current.getBoundingClientRect()
@@ -143,7 +143,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setShowAnnotationInput(true)
 	}
 
-	const handleTouchUp = (e: TouchEvent<HTMLCanvasElement>) => {
+	const handleTouchEnd = (e: TouchEvent<HTMLCanvasElement>) => {
 		if (!startPoint || !canvasRef.current) return
 
 		const rect = canvasRef.current.getBoundingClientRect()
@@ -266,9 +266,9 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}
-				onTouchStart={handleTouchDown}
+				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
-				onTouchEnd={handleTouchUp}
+				onTouchEnd={handleTouchEnd}
 			></canvas>
 			{showAnnotationInput ? (
 				<div className='mt-4 fixed bottom-8 left-8 border rounded p-2 border-slate-800 animate-bounce'>
