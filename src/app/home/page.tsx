@@ -8,7 +8,7 @@ const HomePage = () => {
 			<TasksView />
 			<Link
 				href={'/home/task'}
-				className='fixed right-3 bottom-3 border-2 rounded-full p-4 animate-bounce border-slate-800'
+				className='fixed right-3 bottom-3 border-2 rounded-full p-4 animate-bounce border-slate-800 bg-white'
 			>
 				<IoAdd size={60} />
 			</Link>
