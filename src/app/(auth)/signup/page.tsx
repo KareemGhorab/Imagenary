@@ -30,7 +30,7 @@ const Signup = () => {
 			createUserWithEmailAndPassword(email, password),
 		onSuccess: (data) => {
 			if (!data) {
-				toast('Error creating account', {
+				toast('Email already exists', {
 					type: 'error',
 					theme: 'colored',
 				})

@@ -29,7 +29,7 @@ const SignIn = () => {
 			signInWithEmailAndPassword(email, password),
 		onSuccess: (data) => {
 			if (!data) {
-				toast('Error signing in', { type: 'error', theme: 'colored' })
+				toast('Invalid credentials', { type: 'error', theme: 'colored' })
 				return
 			}
 			toast('Signed in Successfully', {
