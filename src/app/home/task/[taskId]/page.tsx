@@ -32,6 +32,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 	const [showAnnotationInput, setShowAnnotationInput] =
 		useState<boolean>(false)
 	const [status, setStatus] = useState<string>('')
+	const [annotationsToUndo, setAnnotationsToUndo] = useState<number>(0)
 
 	useEffect(() => {
 		if (!taskData?.imageUrl || backgroundImage) return
@@ -104,6 +105,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 	}
 
 	const handleTouchMove = (e: TouchEvent<HTMLCanvasElement>) => {
+		e.preventDefault()
 		if (!isDrawing || !startPoint || !backgroundImage || !canvasRef.current)
 			return
 
@@ -141,14 +143,16 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setRectangles((prev) => [...prev, newRectangle])
 		setIsDrawing(false)
 		setShowAnnotationInput(true)
+		setAnnotationsToUndo((prev) => prev + 1)
 	}
 
 	const handleTouchEnd = (e: TouchEvent<HTMLCanvasElement>) => {
+		e.preventDefault()
 		if (!startPoint || !canvasRef.current) return
 
 		const rect = canvasRef.current.getBoundingClientRect()
-		const x = e.touches[0].clientX - rect.left
-		const y = e.touches[0].clientY - rect.top
+		const x = e.changedTouches[0].clientX - rect.left
+		const y = e.changedTouches[0].clientY - rect.top
 
 		const newRectangle: Rectangle = {
 			x: startPoint.x,
@@ -160,6 +164,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		setRectangles((prev) => [...prev, newRectangle])
 		setIsDrawing(false)
 		setShowAnnotationInput(true)
+		setAnnotationsToUndo((prev) => prev + 1)
 	}
 
 	const handleAddAnnotation = () => {
@@ -229,6 +234,20 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 			},
 		})
 
+	const handleUndoAnnotation = () => {
+		if (annotationsToUndo < 1) return
+		setAnnotationsToUndo((prev) => {
+			return prev - 1
+		})
+		setRectangles((prev) => {
+			const rects = prev.slice(0, prev.length - 1)
+			resetCanvas(ctx, backgroundImage!)
+			drawRectangles(ctx, rects)
+			return rects
+		})
+		setShowAnnotationInput(false)
+	}
+
 	const handleStatusChange = async (
 		event: React.ChangeEvent<HTMLSelectElement>
 	) => {
@@ -262,7 +281,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 			<h2 className='text-center bold text-3xl'>{taskData?.title}</h2>
 			<canvas
 				ref={canvasRef}
-				className='border border-slate-800 rounded-lg mx-auto my-5'
+				className='border border-slate-800 rounded-lg mx-auto my-5 '
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}
@@ -293,14 +312,26 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 						<option value='completed'>Completed</option>
 					</select>
 				</div>
-				<Button
-					onClick={() => resetAnnotations()}
-					className='w-44 h-10'
-					variant='primary'
-					loading={loadingResetAnnotations}
-				>
-					Reset Annotations
-				</Button>
+				<div className='flex flex-col gap-1'>
+					{annotationsToUndo > 0 ? (
+						<Button
+							onClick={handleUndoAnnotation}
+							className='w-44 h-10'
+							variant='primary'
+							loading={loadingResetAnnotations}
+						>
+							Undo Annotation
+						</Button>
+					) : null}
+					<Button
+						onClick={() => resetAnnotations()}
+						className='w-44 h-10'
+						variant='primary'
+						loading={loadingResetAnnotations}
+					>
+						Reset Annotations
+					</Button>
+				</div>
 				<Button
 					onClick={() => saveAnnotation()}
 					className='w-44 h-10'
