@@ -3,7 +3,7 @@
 import Button from '@/components/button'
 import Loading from '@/components/loading'
 import { db } from '@/config/firebase'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore'
 import Link from 'next/link'
 import { MouseEvent, TouchEvent, useEffect, useRef, useState } from 'react'
 import { useDocument } from 'react-firebase-hooks/firestore'
@@ -13,6 +13,7 @@ import { Point, Rectangle } from '@/types'
 import { drawRectangles, resetCanvas } from '@/helpers'
 import { useMutation } from 'react-query'
 import { useRouter } from 'next/navigation'
+import { HEIGHT, WIDTH } from '@/consts'
 
 type Props = { params: { taskId: string } }
 
@@ -46,8 +47,8 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		canvas.width = 320
-		canvas.height = 240
+		canvas.width = WIDTH
+		canvas.height = HEIGHT
 		img.src = taskData.imageUrl
 		img.onload = () => {
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
@@ -58,12 +59,30 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 			drawRectangles(ctx, loadedRectangles)
 		}
 
-		if (taskData?.status) {
-			setStatus(taskData.status)
-		} else {
-			setStatus('pending')
-		}
+		setStatus(taskData.status || 'pending')
+
+		
 	}, [taskData, backgroundImage])
+
+
+	useEffect(() => {
+		const unsubscribe = onSnapshot(taskRef, (doc) => {
+			const newTaskData = doc.data()
+			if (!newTaskData) return
+
+			setStatus(newTaskData.status || 'pending')
+
+			const updatedRectangles = newTaskData.rectangles || []
+			setRectangles(updatedRectangles)
+
+			if (backgroundImage) {
+				resetCanvas(ctx, backgroundImage)
+				drawRectangles(ctx, updatedRectangles)
+			}
+		})
+
+		return () => unsubscribe()
+	}, [])
 
 	const handleMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
 		if (!canvasRef.current) return
@@ -285,7 +304,7 @@ const TaskPage = ({ params: { taskId } }: Props) => {
 			<h2 className='text-center bold text-3xl'>{taskData?.title}</h2>
 			<canvas
 				ref={canvasRef}
-				className='border border-slate-800 rounded-lg mx-auto my-5 '
+				className='border border-slate-800 rounded-lg mx-auto my-5'
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}

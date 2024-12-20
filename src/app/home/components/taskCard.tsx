@@ -30,7 +30,7 @@ const TaskCard: FC<Props> = ({ imageUrl, status, title, rectangles }) => {
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 			drawRectangles(ctx, rectangles)
 		}
-	}, [])
+	}, [imageUrl, rectangles])
 
 	return (
 		<div className='flex flex-col gap-3 items-center border-gray-800 border rounded-lg p-10 w-[300px] h-[350px]'>
