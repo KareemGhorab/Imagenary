@@ -8,15 +8,22 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { BiLoaderAlt } from 'react-icons/bi'
 import TaskCard from './taskCard'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import TaskFilters from './taskFilters'
 
 const TasksView = () => {
 	const [user, userLoading, userError] = useAuthState(auth)
 	const [tasks, setTasks] = useState<Task[]>([])
 	const [loadingTasks, setLoadingTasks] = useState<boolean>(false)
 
+	const searchParams = useSearchParams()
+
+	const status = searchParams.get('status') || 'all'
+
 	const tasksQuery = query(
 		collection(db, 'tasks'),
-		where('assignedTo', '==', user?.email)
+		where('assignedTo', '==', user?.email),
+		...(status !== 'all' ? [where('status', '==', status)] : [])
 	)
 
 	useEffect(() => {
@@ -31,11 +38,12 @@ const TasksView = () => {
 			setLoadingTasks(false)
 		})
 		return () => unsubscribe()
-	}, [user])
+	}, [user, status])
 
 	return (
 		<div>
 			<h2 className='bold text-lg mb-3'>Your current tasks:</h2>
+			<TaskFilters />
 			{userLoading || loadingTasks ? (
 				<BiLoaderAlt size={60} className='animate-spin' />
 			) : userError ? (
